@@ -19,8 +19,8 @@ body {
 }
 
 body.home-view {
-  background: #f4f4f2;
-  color: #171717;
+  background: #0d0d0d;
+  color: #fff;
 }
 
 a { color: inherit; }
@@ -44,8 +44,8 @@ a { color: inherit; }
 }
 
 .home-view .site-header {
-  background: transparent;
-  color: #171717;
+  background: #0d0d0d;
+  color: #fff;
 }
 
 .header-grid {
@@ -181,15 +181,25 @@ a { color: inherit; }
   break-inside: avoid;
   margin: 0 0 4px;
   background: #151515;
+}
+
+.gallery-image {
   cursor: zoom-in;
 }
 
-.gallery-item img {
+.gallery-item img,
+.gallery-item video {
   display: block;
   width: 100%;
   height: auto;
-  min-height: 180px;
+}
+
+.gallery-item img {
   object-fit: cover;
+}
+
+.gallery-item video {
+  background: #000;
 }
 
 .project-meta {
@@ -212,15 +222,36 @@ a { color: inherit; }
 }
 
 .home-shell {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   min-height: calc(100vh - 156px);
   display: grid;
   place-items: center;
   padding: 3rem 1.5rem 8rem;
 }
 
+.home-shell::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,.38), rgba(0,0,0,.68));
+}
+
+.home-background {
+  position: absolute;
+  z-index: -2;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .home-card {
   width: min(760px, 100%);
   text-align: center;
+  text-shadow: 0 2px 22px rgba(0,0,0,.55);
 }
 
 .home-card h1 {
@@ -236,7 +267,7 @@ a { color: inherit; }
   max-width: 690px;
   font-size: clamp(1rem, 2vw, 1.35rem);
   line-height: 1.7;
-  color: #444;
+  color: rgba(255,255,255,.92);
 }
 
 .back-to-top {
@@ -285,7 +316,7 @@ a { color: inherit; }
   .menu-toggle { display: inline-grid; gap: 4px; border: 0; padding: .5rem; background: transparent; color: inherit; }
   .menu-toggle span:not(.visually-hidden) { width: 24px; height: 2px; background: currentColor; }
   .primary-nav { display: none; position: absolute; top: 82px; left: 1rem; right: 1rem; padding: 1.25rem; background: #171717; flex-direction: column; gap: 1rem; border: 1px solid #2a2a2a; }
-  .home-view .primary-nav { background: #fff; border-color: #ddd; }
+  .home-view .primary-nav { background: #171717; border-color: #2a2a2a; }
   .primary-nav.open { display: flex; }
   .content-shell { padding: 0 .8rem 3.5rem; }
   .work-grid { grid-template-columns: 1fr; }
@@ -298,4 +329,5 @@ a { color: inherit; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+  .home-background { display: none; }
 }

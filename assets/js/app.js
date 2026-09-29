@@ -1,35 +1,6 @@
 'use strict';
 
-const projects = [
-  { slug: 'cbpc-1', title: 'CBPC', year: '2021', cover: 'assets/images/work/01.jpeg', ext: 'jpeg' },
-  { slug: 'personale-odontologia', title: 'Personale Odontologia', year: '2021', cover: 'assets/images/work/02.jpg', ext: 'jpg' },
-  { slug: 'trato-top', title: 'Trato Top', year: '2020', cover: 'assets/images/work/03.jpg', ext: 'jpeg' },
-  { slug: 'ibls', title: 'IBLS', year: '2020', cover: 'assets/images/work/04.jpg', ext: 'jpeg' },
-  { slug: 'instituto-espaco-luz', title: 'Instituto Espaço Luz', year: '2020', cover: 'assets/images/work/05.jpg', ext: 'jpeg' },
-  { slug: 'fabricio-reis-engenharia', title: 'Fabrício Reis Engenharia', year: '2020', cover: 'assets/images/work/06.jpeg', ext: 'jpeg' },
-  { slug: 'sushi-house', title: 'Sushi House', year: '2020', cover: 'assets/images/work/07.jpeg', ext: 'jpeg' },
-  { slug: 'igreja-evangelica-el-shadai', title: 'Igreja Evangélica El Shadai', year: '2020', cover: 'assets/images/work/08.jpg', ext: 'jpeg' },
-  { slug: 'radio-opcao', title: 'Rádio Opção', year: '2020', cover: 'assets/images/work/09.jpeg', ext: 'jpeg' },
-  { slug: 'ibmh', title: 'IBMH', year: '2020', cover: 'assets/images/work/10.jpeg', ext: 'jpeg' }
-];
-
-const collections = {
-  cbpc: {
-    title: 'CBPC',
-    images: ['01.jpg', '02.jpg', '03.jpg', '04.jpg', '05.jpg', '06.png']
-  },
-  conexao: {
-    title: 'Conexão',
-    images: ['01.jpg', '02.jpg', '03.jpg', '04.jpg', '05.jpg', '06.jpg']
-  }
-};
-
-const projectImages = Object.fromEntries(projects.map((project) => [
-  project.slug,
-  Array.from({ length: 6 }, (_, index) =>
-    `assets/images/${project.slug}/${String(index + 1).padStart(2, '0')}.${project.ext}`
-  )
-]));
+const { projects, collections, home } = window.PORTFOLIO_DATA;
 
 const main = document.querySelector('#main-content');
 const menuButton = document.querySelector('.menu-toggle');
@@ -41,11 +12,24 @@ const lightboxCount = lightbox.querySelector('.lightbox-count');
 let currentGallery = [];
 let currentImageIndex = 0;
 
-function galleryMarkup(images, title) {
-  return `<div class="gallery" data-gallery>${images.map((src, index) => `
-    <figure class="gallery-item" tabindex="0" data-gallery-index="${index}">
-      <img src="${src}" alt="${title} — imagem ${index + 1}" loading="${index < 2 ? 'eager' : 'lazy'}">
-    </figure>`).join('')}</div>`;
+function galleryMarkup(media, title) {
+  let imageIndex = 0;
+
+  return `<div class="gallery" data-gallery>${media.map((item, index) => {
+    if (item.type === 'video') {
+      return `<figure class="gallery-item gallery-video">
+        <video controls playsinline preload="metadata" aria-label="${title} — vídeo ${index + 1}">
+          <source src="${item.src}" type="video/mp4">
+          Seu navegador não suporta a reprodução deste vídeo.
+        </video>
+      </figure>`;
+    }
+
+    const galleryIndex = imageIndex++;
+    return `<figure class="gallery-item gallery-image" tabindex="0" data-gallery-index="${galleryIndex}">
+      <img src="${item.src}" alt="${title} — imagem ${galleryIndex + 1}" loading="${galleryIndex < 2 ? 'eager' : 'lazy'}">
+    </figure>`;
+  }).join('')}</div>`;
 }
 
 function renderWork() {
@@ -65,32 +49,33 @@ function renderWork() {
 
 function renderCollection(slug) {
   const collection = collections[slug];
-  const images = collection.images.map((name) => `assets/images/${slug}/${name}`);
   main.innerHTML = `<section class="content-shell" aria-labelledby="page-title">
     <h1 class="page-heading" id="page-title">${collection.title}</h1>
-    ${galleryMarkup(images, collection.title)}
+    ${galleryMarkup(collection.media, collection.title)}
   </section>`;
-  setGallery(images);
+  setGallery(collection.media);
 }
 
 function renderHome() {
   main.innerHTML = `<section class="home-shell" aria-labelledby="home-title">
+    <video class="home-background" autoplay muted loop playsinline preload="metadata" aria-hidden="true">
+      <source src="${home.video}" type="video/mp4">
+    </video>
     <div class="home-card">
       <h1 id="home-title">Danni<br>Bsbeats</h1>
-      <p>Formada e Publicidade e Propaganda, foi Sócia da agência Karisma Marketing, trabalhou na agência Gaas, sou Media Social e web Design Gráfico foi Sócia da Produtora Ventura e hoje atualmente trabalha na área de marketing da CBPC (Convenção Batista Planalto Central</p>
+      <p>${home.text}</p>
     </div>
   </section>`;
   setGallery([]);
 }
 
 function renderProject(project) {
-  const images = projectImages[project.slug];
   main.innerHTML = `<article class="content-shell" aria-labelledby="project-title">
     <h1 class="page-heading" id="project-title">${project.title}</h1>
     <p class="project-meta"><span>Projeto</span><span>•</span><span>${project.year}</span></p>
-    ${galleryMarkup(images, project.title)}
+    ${galleryMarkup(project.media, project.title)}
   </article>`;
-  setGallery(images);
+  setGallery(project.media);
 }
 
 function renderNotFound() {
@@ -98,8 +83,8 @@ function renderNotFound() {
   setGallery([]);
 }
 
-function setGallery(images) {
-  currentGallery = images;
+function setGallery(media) {
+  currentGallery = media.filter((item) => item.type === 'image').map((item) => item.src);
   document.querySelectorAll('[data-gallery-index]').forEach((item) => {
     const open = () => openLightbox(Number(item.dataset.galleryIndex));
     item.addEventListener('click', open);
